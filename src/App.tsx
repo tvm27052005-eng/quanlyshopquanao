@@ -64,8 +64,9 @@ export default function App() {
   const [reviews, setReviews] = useState<any[]>([]);
   const [analyticsData, setAnalyticsData] = useState<any>(null);
 
-  // User Auth
-  const [currentUser, setCurrentUser] = useState<User | null>(INITIAL_USERS[0] || null);
+  // User Auth - Default auto login as Customer (Đặng Hoàng Nam - Không phân quyền admin)
+  const defaultCustomerUser = INITIAL_USERS.find((u) => u.role === 'CUSTOMER') || INITIAL_USERS[0];
+  const [currentUser, setCurrentUser] = useState<User | null>(defaultCustomerUser);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   // Modals & Drawers
@@ -193,11 +194,11 @@ export default function App() {
     fetchAllData();
   }, []);
 
-  // Set default logged in Admin for demo
+  // Set default logged in Customer (Đặng Hoàng Nam - Không có quyền Admin) for initial load
   useEffect(() => {
-    if (users.length > 0 && !currentUser) {
-      const adminUser = users.find((u) => u.role === 'ADMIN') || users[0];
-      setCurrentUser(adminUser);
+    if (users.length > 0 && (!currentUser || currentUser.role === 'ADMIN')) {
+      const customerUser = users.find((u) => u.role === 'CUSTOMER' || u.name.includes('Hoàng Nam')) || users[0];
+      setCurrentUser(customerUser);
     }
   }, [users]);
 
