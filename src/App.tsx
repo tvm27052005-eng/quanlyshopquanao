@@ -549,7 +549,7 @@ export default function App() {
             setCurrentSubTab={setAdminSubTab}
             currentUser={currentUser}
           >
-            {adminSubTab === 'dashboard' && <DashboardView analyticsData={analyticsData} />}
+            {adminSubTab === 'dashboard' && <DashboardView analyticsData={analyticsData} orders={orders} products={products} />}
             {adminSubTab === 'products' && (
               <ProductManager
                 products={products}

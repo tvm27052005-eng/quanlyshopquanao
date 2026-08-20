@@ -333,19 +333,20 @@ app.post('/api/v1/auth/change-password', async (req: Request, res: Response) => 
 app.get('/api/v1/analytics/dashboard', async (req: Request, res: Response) => {
   const orders = await db.getOrders();
   const products = await db.getProducts();
+  const users = await db.getUsers();
 
   // Valid orders = not cancelled
   const validOrders = orders.filter(o => o.status !== 'CANCELLED');
-  const totalRevenueFromOrders = validOrders.reduce((sum, o) => sum + o.totalAmount, 0);
-  const totalRevenue = totalRevenueFromOrders > 0 ? totalRevenueFromOrders : 280000000;
-  const totalOrders = orders.length > 0 ? orders.length : 142;
+  const totalRevenue = validOrders.reduce((sum, o) => sum + o.totalAmount, 0);
+  const totalOrders = orders.length;
   const lowStockCount = products.filter(p => p.variants.some(v => v.stock < 5)).length;
+  const loyalCustomers = users.filter(u => u.role === 'CUSTOMER').length || 1;
 
   // Channel Breakdown
   const posOrders = validOrders.filter(o => o.source === 'POS');
   const onlineOrders = validOrders.filter(o => o.source !== 'POS');
-  const posRevenue = posOrders.reduce((sum, o) => sum + o.totalAmount, 0) || Math.round(totalRevenue * 0.6);
-  const onlineRevenue = onlineOrders.reduce((sum, o) => sum + o.totalAmount, 0) || Math.round(totalRevenue * 0.4);
+  const posRevenue = posOrders.reduce((sum, o) => sum + o.totalAmount, 0);
+  const onlineRevenue = onlineOrders.reduce((sum, o) => sum + o.totalAmount, 0);
 
   // Category Sales Breakdown
   const categorySalesMap: Record<string, number> = {};
@@ -357,14 +358,10 @@ app.get('/api/v1/analytics/dashboard', async (req: Request, res: Response) => {
     });
   });
 
-  const categoryBreakdown = Object.keys(categorySalesMap).length > 0
-    ? Object.keys(categorySalesMap).map(name => ({ name, value: categorySalesMap[name] }))
-    : [
-        { name: 'Áo Nam', value: 42000000 },
-        { name: 'Thời Trang Nữ', value: 28000000 },
-        { name: 'Quần Nam', value: 18000000 },
-        { name: 'Áo Khoác & Vest', value: 12000000 }
-      ];
+  const categoryBreakdown = Object.keys(categorySalesMap).map(name => ({
+    name,
+    value: categorySalesMap[name]
+  }));
 
   // Top Selling Products
   const productSalesMap: Record<string, { name: string; sku: string; quantity: number; revenue: number }> = {};
@@ -384,37 +381,39 @@ app.get('/api/v1/analytics/dashboard', async (req: Request, res: Response) => {
     });
   });
 
-  let topProducts = Object.values(productSalesMap).sort((a, b) => b.revenue - a.revenue).slice(0, 5);
-  if (topProducts.length === 0) {
-    topProducts = [
-      { name: 'Áo Sơ Mi Nam Oxford Premium Cotton', sku: 'SM-OXF-WHT-M', quantity: 142, revenue: 49558000 },
-      { name: 'Áo Polo Nam Form Regular Pique', sku: 'POLO-BLK-L', quantity: 110, revenue: 31900000 },
-      { name: 'Quần Jeans Nam Slim-Fit Co Giãn', sku: 'JNS-BLU-31', quantity: 84, revenue: 36036000 }
-    ];
-  }
+  const topProducts = Object.values(productSalesMap).sort((a, b) => b.revenue - a.revenue).slice(0, 5);
 
-  const monthlyRevenue = [
-    { month: 'T1', revenue: 120000000, profit: 45000000 },
-    { month: 'T2', revenue: 145000000, profit: 52000000 },
-    { month: 'T3', revenue: 160000000, profit: 60000000 },
-    { month: 'T4', revenue: 190000000, profit: 71000000 },
-    { month: 'T5', revenue: 210000000, profit: 82000000 },
-    { month: 'T6', revenue: 240000000, profit: 95000000 },
-    { month: 'T7', revenue: totalRevenue, profit: Math.round(totalRevenue * 0.38) }
-  ];
+  // Monthly Revenue grouped dynamically by month from actual orders
+  const monthMap: Record<string, number> = {};
+  validOrders.forEach(o => {
+    const d = new Date(o.createdAt || Date.now());
+    const mKey = `T${d.getMonth() + 1}`;
+    monthMap[mKey] = (monthMap[mKey] || 0) + o.totalAmount;
+  });
+
+  const months = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8'];
+  const monthlyRevenue = months.map(m => {
+    const rev = monthMap[m] || 0;
+    return {
+      month: m,
+      revenue: rev,
+      profit: Math.round(rev * 0.38)
+    };
+  });
 
   res.json({
     success: true,
+    rawOrders: orders,
     kpis: {
       totalRevenue,
       totalOrders,
       totalProducts: products.length,
       lowStockCount,
-      loyalCustomers: 148,
+      loyalCustomers,
       posRevenue,
       onlineRevenue,
-      posOrderCount: posOrders.length || 94,
-      onlineOrderCount: onlineOrders.length || 48
+      posOrderCount: posOrders.length,
+      onlineOrderCount: onlineOrders.length
     },
     charts: {
       monthlyRevenue,

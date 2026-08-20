@@ -11,7 +11,13 @@ import {
   Sparkles,
   ChevronDown,
   ShieldCheck,
-  Award
+  Award,
+  PhoneCall,
+  MapPin,
+  Truck,
+  Heart,
+  Ticket,
+  LogOut
 } from 'lucide-react';
 import { User, SystemNotification } from '../types';
 
@@ -83,13 +89,52 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md text-slate-800 border-b border-slate-200 shadow-xs">
-      {/* Top Bar Announcement */}
-      <div className="bg-slate-900 text-slate-100 text-xs text-center py-1.5 font-medium tracking-wide flex items-center justify-center gap-2">
-        <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-spin" />
-        <span>FLASH SALE SUMMER 2026: GIẢM ĐẾN 50% TOÀN BỘ SẢN PHẨM KHÔNG GIỚI HẠN!</span>
-        <span className="hidden md:inline text-amber-300 font-bold">Mã: HELLOSUMMER</span>
+      {/* Top Utility Bar - Real-world E-Commerce Header */}
+      <div className="bg-slate-900 text-slate-300 text-[11px] py-1.5 px-4 sm:px-8 flex items-center justify-between border-b border-slate-800">
+        <div className="flex items-center gap-4">
+          <span className="flex items-center gap-1.5 text-slate-300 font-medium">
+            <PhoneCall className="w-3 h-3 text-amber-400" /> Hotline: <strong className="text-white">1900 6868</strong>
+          </span>
+          <span className="hidden md:flex items-center gap-1.5 text-slate-400">
+            <MapPin className="w-3 h-3 text-emerald-400" /> 12 Showroom toàn quốc
+          </span>
+          <span className="hidden lg:flex items-center gap-1.5 text-slate-400">
+            <Truck className="w-3 h-3 text-indigo-400" /> Miễn phí giao hàng toàn quốc từ 500k
+          </span>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {currentUser ? (
+            <div className="flex items-center gap-2">
+              <span className="text-slate-400">Xin chào,</span>
+              <span className="font-bold text-white flex items-center gap-1">
+                {currentUser.name}
+                <span className="bg-amber-400/20 text-amber-300 text-[9px] font-black px-1.5 py-0.5 rounded border border-amber-400/30 ml-1">
+                  VIP {currentUser.loyaltyTier || 'GOLD'}
+                </span>
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 font-bold text-slate-200">
+              <button
+                onClick={handleOpenAuth}
+                className="hover:text-amber-400 transition-colors cursor-pointer"
+              >
+                Đăng Nhập
+              </button>
+              <span>/</span>
+              <button
+                onClick={handleOpenAuth}
+                className="hover:text-amber-400 transition-colors cursor-pointer"
+              >
+                Đăng Ký
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
+      {/* Main Header Navbar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-4">
           {/* Logo & Main Modes */}
@@ -244,31 +289,35 @@ export const Header: React.FC<HeaderProps> = ({
               <span className="hidden sm:inline">Giỏ Hàng</span>
             </button>
 
-            {/* User Account / Auth */}
+            {/* User Account / Auth Dropdown */}
             {currentUser ? (
               <div className="relative">
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
                   className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200/70 text-slate-800 p-1.5 sm:px-3 sm:py-1.5 rounded-xl border border-slate-200 text-xs transition-colors"
                 >
-                  <div className="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">
+                  <div className="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
                     {currentUser.name.charAt(0)}
                   </div>
-                  <span className="hidden md:inline font-semibold text-slate-800">{currentUser.name}</span>
+                  <span className="hidden md:inline font-bold text-slate-800">{currentUser.name}</span>
                   <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
                 </button>
 
+                {/* Real-World E-Commerce User Profile Dropdown */}
                 {showUserMenu && (
-                  <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 p-2 text-xs">
-                    <div className="p-3 bg-slate-50 rounded-xl mb-2 border border-slate-100">
-                      <p className="font-bold text-slate-900">{currentUser.name}</p>
-                      <p className="text-slate-500 text-[11px] truncate">{currentUser.email}</p>
-                      <div className="mt-2 flex items-center justify-between text-[10px]">
-                        <span className="bg-indigo-50 text-indigo-700 font-bold px-2 py-0.5 rounded-full border border-indigo-200 flex items-center gap-1">
-                          <Award className="w-3 h-3" />
-                          Hạng {currentUser.loyaltyTier}
+                  <div className="absolute right-0 mt-2 w-64 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 p-2 text-xs animate-in fade-in zoom-in-95 duration-150">
+                    <div className="p-3 bg-gradient-to-r from-slate-900 to-indigo-950 text-white rounded-xl mb-2 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <p className="font-extrabold text-sm line-clamp-1">{currentUser.name}</p>
+                        <span className="bg-amber-400/20 text-amber-300 text-[10px] font-black px-2 py-0.5 rounded-full border border-amber-400/30 flex items-center gap-1">
+                          <Award className="w-3 h-3 text-amber-400" /> VIP {currentUser.loyaltyTier || 'GOLD'}
                         </span>
-                        <span className="text-slate-700 font-bold">{currentUser.points} điểm</span>
+                      </div>
+                      <p className="text-slate-300 text-[11px] truncate">{currentUser.email}</p>
+                      
+                      <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[11px]">
+                        <span className="text-slate-300">Điểm tích lũy:</span>
+                        <span className="font-extrabold text-amber-300 text-xs">{currentUser.points || 380} điểm</span>
                       </div>
                     </div>
 
@@ -277,10 +326,10 @@ export const Header: React.FC<HeaderProps> = ({
                         setShowUserMenu(false);
                         if (onOpenAccountProfile) onOpenAccountProfile();
                       }}
-                      className="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-100 rounded-xl transition-colors flex items-center gap-2 font-medium"
+                      className="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-100 rounded-xl transition-colors flex items-center gap-2.5 font-semibold"
                     >
                       <UserIcon className="w-4 h-4 text-indigo-600" />
-                      Thông Tin & Đổi Mật Khẩu
+                      Hồ Sơ Cá Nhân & Đổi Mật Khẩu
                     </button>
 
                     <button
@@ -288,10 +337,10 @@ export const Header: React.FC<HeaderProps> = ({
                         setShowUserMenu(false);
                         onOpenCustomerPortal();
                       }}
-                      className="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-100 rounded-xl transition-colors flex items-center gap-2 font-medium"
+                      className="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-100 rounded-xl transition-colors flex items-center gap-2.5 font-semibold"
                     >
                       <ShoppingBag className="w-4 h-4 text-rose-500" />
-                      Đơn Hàng & Điểm Tích Lũy
+                      Đơn Mua Của Tôi & Điểm Thưởng
                     </button>
 
                     {currentUser.role !== 'CUSTOMER' && (
@@ -300,10 +349,10 @@ export const Header: React.FC<HeaderProps> = ({
                           setShowUserMenu(false);
                           setActiveTab('ADMIN');
                         }}
-                        className="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-100 rounded-xl transition-colors flex items-center gap-2 font-medium"
+                        className="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-100 rounded-xl transition-colors flex items-center gap-2.5 font-semibold"
                       >
                         <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                        Quyền Quản Trị ({currentUser.role})
+                        Quản Trị Hệ Thống ({currentUser.role})
                       </button>
                     )}
 
@@ -314,9 +363,10 @@ export const Header: React.FC<HeaderProps> = ({
                         setShowUserMenu(false);
                         onLogout();
                       }}
-                      className="w-full text-left px-3 py-2 text-rose-600 hover:bg-rose-50 rounded-xl transition-colors font-semibold"
+                      className="w-full text-left px-3 py-2 text-rose-600 hover:bg-rose-50 rounded-xl transition-colors font-bold flex items-center gap-2.5"
                     >
-                      Đăng Xuất
+                      <LogOut className="w-4 h-4 text-rose-500" />
+                      Đăng Xuất Tài Khoản
                     </button>
                   </div>
                 )}
@@ -324,17 +374,17 @@ export const Header: React.FC<HeaderProps> = ({
             ) : (
               <button
                 onClick={handleOpenAuth}
-                className="bg-slate-100 hover:bg-slate-200/70 text-slate-800 px-3.5 py-2 rounded-xl text-xs font-semibold border border-slate-200 transition-colors flex items-center gap-2"
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-xs transition-all flex items-center gap-2 cursor-pointer"
               >
-                <UserIcon className="w-4 h-4 text-slate-600" />
-                Đăng Nhập
+                <UserIcon className="w-4 h-4" />
+                Đăng Nhập / Đăng Ký
               </button>
             )}
 
             {/* Mobile Menu Trigger */}
             <button
               onClick={() => setMobileMenu(!mobileMenu)}
-              className="lg:hidden p-2 text-slate-300 hover:text-white"
+              className="lg:hidden p-2 text-slate-600 hover:text-slate-900"
             >
               {mobileMenu ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -348,7 +398,7 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={() => { setActiveTab('STORE'); setMobileMenu(false); }}
-              className={`p-2.5 rounded-xl text-center text-xs font-bold border ${activeTab === 'STORE' ? 'bg-rose-600 text-white border-rose-500' : 'bg-slate-800 text-slate-300 border-slate-700'}`}
+              className={`p-2.5 rounded-xl text-center text-xs font-bold border ${activeTab === 'STORE' ? 'bg-indigo-600 text-white border-indigo-500' : 'bg-slate-800 text-slate-300 border-slate-700'}`}
             >
               Cửa Hàng
             </button>
