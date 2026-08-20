@@ -194,9 +194,9 @@ export default function App() {
     fetchAllData();
   }, []);
 
-  // Set default logged in Customer (Đặng Hoàng Nam - Không có quyền Admin) for initial load
+  // Set default logged in Customer (Đặng Hoàng Nam) ONLY on initial load when no user is selected
   useEffect(() => {
-    if (users.length > 0 && (!currentUser || currentUser.role === 'ADMIN')) {
+    if (users.length > 0 && !currentUser) {
       const customerUser = users.find((u) => u.role === 'CUSTOMER' || u.name.includes('Hoàng Nam')) || users[0];
       setCurrentUser(customerUser);
     }
