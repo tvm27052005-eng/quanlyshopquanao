@@ -1,0 +1,8 @@
+{
+  "name": "Remix: FashionPro - Enterprise Clothing Store Management System",
+  "description": "Hệ thống Quản lý Cửa hàng Quần áo \u0026 E-Commerce Enterprise: Quản lý sản phẩm \u0026 biến thể, kho hàng, POS/Online, đơn hàng, thanh toán VNPay/MoMo/COD, khuyến mãi, báo cáo doanh thu, RBAC \u0026 Audit Log.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
